@@ -1,0 +1,4 @@
+# Thu vien cho examples/dieu_khien_camera.py (khong co trong wheels offline, can Internet)
+# Da kiem tra: Python 3.10.5 x64, 03/11/2026
+mediapipe==0.10.14
+numpy<2

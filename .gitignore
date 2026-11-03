@@ -1,0 +1,26 @@
+# Moi truong Python (tao lai bang CaiDat.bat)
+.venv/
+venv/
+env/
+
+# Python cache / build
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+
+# Hieu chinh ca nhan cua chuong trinh camera (moi nguoi tu tao bang phim O/F)
+examples/hieu_chinh_camera.json
+
+# Log, file tam
+*.log
+*.tmp
+
+# IDE / he dieu hanh
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+.DS_Store

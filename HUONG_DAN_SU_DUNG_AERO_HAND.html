@@ -1,0 +1,413 @@
+<!doctype html><html lang="vi"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hướng dẫn Aero Hand tay trái</title><style>body{font:17px/1.65 system-ui,Segoe UI,sans-serif;color:#18232d;background:#f6f8fa;margin:0}
+main{max-width:980px;margin:28px auto;background:white;padding:34px 44px;border:1px solid #dbe1e7;border-radius:12px}
+h1,h2,h3{line-height:1.25;color:#143d58}h2{margin-top:2em;border-bottom:1px solid #ddd;padding-bottom:.35em}
+nav{display:flex;gap:20px;flex-wrap:wrap;border-bottom:1px solid #ddd;padding-bottom:18px}
+a{color:#0969a2}table{border-collapse:collapse;width:100%;margin:20px 0}td,th{border:1px solid #dbe1e7;padding:9px 12px;text-align:left}
+th{background:#eef5fa}pre{overflow:auto;background:#f1f4f7;padding:18px;border-radius:8px}code{font-family:Consolas,monospace}
+blockquote{border-left:4px solid #2082a1;margin:20px 0;padding:4px 18px;background:#f0f8fb}
+@media(max-width:700px){main{padding:20px;margin:0;border:0;border-radius:0}body{font-size:16px}}
+@media print{body{background:white}main{border:0;margin:0;padding:0}nav{display:none}h2,h3{break-after:avoid}tr,pre{break-inside:avoid}}
+</style><main><nav><a href="BAT_DAU.html">Bắt đầu</a><a href="HUONG_DAN_SU_DUNG_AERO_HAND.html">Hướng dẫn vận hành</a><a href="HUONG_DAN_CAMERA.html">Điều khiển camera</a><a href="aero-hand-open/hardware/Gen1_OPEN_Assembly_Guide.pdf">Lắp ráp PDF</a></nav><blockquote>
+<p>Bản phát cho sinh viên. <code>C:\AeroHand_Student</code> trong ví dụ là thư mục giải nén;
+có thể chọn thư mục khác. Các file BAT/PS1 tự tìm thư mục của chính gói.
+Hướng dẫn theo bàn tay trái của lớp; bàn tay khác cần kiểm tra ID và mốc riêng.</p>
+</blockquote>
+<h1>Hướng dẫn sử dụng và điều khiển Aero Hand tay trái</h1>
+<p>Cập nhật: <strong>03/11/2026</strong>. Áp dụng theo cấu hình đã xác nhận gần nhất ngày 02/11/2026: bàn tay trái tại <code>C:\AeroHand_Student</code>, firmware <strong><code>firmware_v0.2.0_lefthand.bin</code></strong> và GUI cài từ source trong môi trường <code>.venv</code> của dự án.</p>
+<h2>1. Trạng thái hiện tại và sơ đồ servo</h2>
+<p>Đã đặt đủ bảy ID. Ngày 02/11/2026 đã đảo lại ID 1 và ID 2, đọc lại xác nhận, rồi khôi phục firmware tay trái v0.2.0 để dùng GUI.</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Nhãn trên GUI</th>
+<th>Cơ cấu thực tế</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>0</strong></td>
+<td><code>thumb_abduction</code></td>
+<td>Tay đòn cứng: dạng/khép ngang cả ngón cái</td>
+</tr>
+<tr>
+<td><strong>1</strong></td>
+<td><code>thumb_flex</code></td>
+<td>Dây cáp: gập khớp gốc/phần dưới ngón cái</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td><code>thumb_tendon</code></td>
+<td>Dây cáp: cuộn phần đầu ngón cái</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td><code>index_finger</code></td>
+<td>Ngón trỏ</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td><code>middle_finger</code></td>
+<td>Ngón giữa</td>
+</tr>
+<tr>
+<td><strong>5</strong></td>
+<td><code>ring_finger</code></td>
+<td>Ngón áp út</td>
+</tr>
+<tr>
+<td><strong>6</strong></td>
+<td><code>pinky_finger</code></td>
+<td>Ngón út</td>
+</tr>
+</tbody>
+</table>
+<p><strong>ID đúng chưa có nghĩa là hành trình đã đúng.</strong> Sau lần đảo ID 1/2, cần kiểm tra lại dây và hiệu chỉnh ngón cái trước khi chạy toàn hành trình hoặc demo nắm tay. Tài liệu này không xác nhận rằng phần hiệu chỉnh đó đã hoàn tất.</p>
+<p>Các mốc thử ID 3 từng lưu khi chạy firmware chẩn đoán là mốc tham chiếu của phiên thử, không phải một bộ hiệu chỉnh đã hoàn thiện cho firmware chuẩn. Không lấy các số encoder cũ làm lệnh chạy trực tiếp.</p>
+<h2>2. Chuẩn bị nguồn và cơ khí</h2>
+<ul>
+<li>Dùng nguồn servo <strong>6 V DC ổn áp</strong>; cấu hình nguồn trong hướng dẫn phần cứng là <strong>6 V, 10 A</strong>. USB là đường giao tiếp và nguồn cho bộ điều khiển theo cách đi dây của board.</li>
+<li>Để công tắc/ngắt nguồn 6 V trong tầm với. Tắt 6 V trước khi tháo giắc servo, tháo puly, buộc hoặc chỉnh dây.</li>
+<li>Dây nằm đúng rãnh, không chéo hoặc kẹp vào khung; nút chặn không trượt. Dây điện không vướng tay đòn và puly.</li>
+<li>Kiểm tra lò xo hồi và dây liên động giữa các đốt. Không cố vặn trục servo qua lực cản.</li>
+<li>Dọn trống vùng ngón tay chuyển động trước khi cấp điện; không đặt tay người vào vùng khớp/puly.</li>
+</ul>
+<h3>Chú ý khi khởi động</h3>
+<p>Firmware chuẩn có thể <strong>tự Homing khi ESP32 khởi động do cấp nguồn hoặc sụt áp</strong>. Việc GUI đang đóng, chưa Connect hay đã Pause không ngăn được Homing do firmware tự chạy.</p>
+<ul>
+<li>Nếu giữ USB liên tục và ESP32 đã khởi động xong: để GUI ở trạng thái dừng gửi vị trí trước khi cấp lại 6 V.</li>
+<li>Nếu khởi động lại cả bộ: chỉ làm khi cơ khí/dây đã sẵn sàng cho Homing. Chuẩn bị nguồn servo rồi cấp nguồn bộ điều khiển; với cách đi dây dùng USB nuôi ESP32, đó là cấp 6 V cho servo rồi cắm USB. Nếu board nuôi ESP32 từ 6 V, nó có thể khởi động ngay khi bật 6 V.</li>
+<li>Không bật nguồn servo giữa một quy trình Homing đã bắt đầu khi servo chưa có nguồn. Nếu không chắc trạng thái khởi động, dừng và xác định lại trước khi vận hành.</li>
+<li>Khi cần cấp điện nhưng tuyệt đối chưa được chuyển động để sửa cơ khí, không dựa vào nút Pause của GUI để thay cho firmware/chế độ thả trôi phù hợp.</li>
+</ul>
+<h2>3. Mở GUI và kết nối</h2>
+<ol>
+<li>Chạy <strong><code>C:\AeroHand_Student\ChayGUI.bat</code></strong>. File này dùng đúng Python/SDK trong <code>.venv</code> của dự án.</li>
+<li>Bấm <strong>Refresh</strong>, chọn cổng của ESP32. Cổng đã dùng là <strong>COM11</strong>, nhưng có thể thay đổi nếu đổi cổng USB.</li>
+<li>Chọn <strong>Baud = 921600</strong>, <strong>Rate = 50 Hz</strong>.</li>
+<li>Bấm <strong>Connect</strong>. Đọc RX Log để xác nhận kết nối.</li>
+<li>Trong bản GUI đã chỉnh tại dự án này, kết nối mới luôn có <strong>position streaming OFF</strong>. Chưa bấm <strong>Start Position Commands</strong> nếu chưa kiểm tra các slider và mốc cơ khí.</li>
+</ol>
+<p>Nếu cần mở bằng PowerShell:</p>
+<pre><code class="language-powershell">Set-Location C:\AeroHand_Student
+.\.venv\Scripts\python.exe -m aero_open_sdk
+</code></pre>
+<p>Chỉ một chương trình giữ cổng COM tại một thời điểm: GUI, Serial Monitor, script Python và công cụ nạp firmware không nên cùng mở COM11.</p>
+<h2>4. Các nút quan trọng</h2>
+<table>
+<thead>
+<tr>
+<th>Nút</th>
+<th>Chức năng và điều cần nhớ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Start Position Commands</strong></td>
+<td>Bắt đầu gửi toàn bộ giá trị slider đang đặt; bàn tay có thể chuyển động ngay</td>
+</tr>
+<tr>
+<td><strong>Pause Position Commands</strong></td>
+<td>Ngừng gửi vị trí mới; <strong>không tắt lực</strong> đang giữ trong servo</td>
+</tr>
+<tr>
+<td><strong>Disconnect</strong></td>
+<td>Đóng cổng COM; <strong>không phải lệnh thả trôi</strong></td>
+</tr>
+<tr>
+<td><strong>Homing</strong></td>
+<td>Chạy quy trình tìm mốc trên firmware, có chuyển động; chờ ACK hoàn tất</td>
+</tr>
+<tr>
+<td><strong>Set to Open Position</strong></td>
+<td>Gửi lệnh mở cho toàn bộ bàn tay ngay cả khi streaming đang Pause; không dùng làm nút dừng khẩn cấp</td>
+</tr>
+<tr>
+<td><strong>Set Speed</strong></td>
+<td>Đặt giới hạn tốc độ cho ID được chọn trong điều khiển vị trí; không dùng giá trị 0 để thay cho việc dừng/cắt nguồn</td>
+</tr>
+<tr>
+<td><strong>Set Torque</strong></td>
+<td>Đặt giới hạn lực cho ID được chọn trong điều khiển vị trí; khác với chế độ Torque Control</td>
+</tr>
+<tr>
+<td><strong>Trim Servo</strong></td>
+<td>Dịch mốc mở của kênh; không chỉnh độc lập mốc đóng</td>
+</tr>
+<tr>
+<td><strong>GET_POS</strong></td>
+<td>Đọc vị trí chuẩn hóa theo mốc hiệu chỉnh, không phải encoder raw</td>
+</tr>
+<tr>
+<td><strong>GET_TEMP</strong></td>
+<td>Đọc nhiệt độ theo thứ tự ID 0–6</td>
+</tr>
+<tr>
+<td><strong>GET_CURR</strong></td>
+<td>Đọc dòng theo cách quy đổi của SDK; xem lưu ý ở mục 7</td>
+</tr>
+<tr>
+<td><strong>Set ID</strong></td>
+<td>Công cụ GUI yêu cầu một servo trên bus; hiện đã đủ ID, không dùng lại trong vận hành bình thường</td>
+</tr>
+<tr>
+<td><strong>Upload Firmware</strong></td>
+<td>Nạp chương trình cho ESP32; không phải nút hiệu chỉnh hành trình</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Pause chỉ chặn luồng vị trí liên tục.</strong> Các nút có tác dụng chuyển động riêng như Homing, Set to Open Position hoặc Torque Control vẫn có thể gửi lệnh của chúng.</p>
+<h2>5. Homing và hiệu chỉnh sau khi sửa dây</h2>
+<h3>Khi nào cần kiểm tra lại mốc?</h3>
+<p>Sau khi dây tụt/thay dây, đổi nút buộc hoặc chiều quấn puly, tháo lắp tay đòn, đổi ID, hoặc khi vị trí mở/đóng không còn khớp thực tế.</p>
+<h3>Quy trình Homing</h3>
+<ol>
+<li>Hoàn tất luồn và cố định dây; kiểm tra đúng bảng ID. Không Homing khi dây đang tuột, thả khỏi puly hoặc cơ khí còn tháo rời.</li>
+<li>Để bàn tay có khoảng trống, sẵn sàng ngắt 6 V. Kiểm tra nhiệt độ trước khi chạy.</li>
+<li>Giữ <strong>position streaming OFF</strong>, bấm <strong>Homing một lần</strong>.</li>
+<li>Quan sát suốt quy trình. Firmware có thể bỏ qua lệnh điều khiển khác khi Homing; nếu kẹt bất thường hoặc dây tuột, ngắt 6 V thay vì chờ nút Pause có tác dụng.</li>
+<li>Chờ RX Log báo ACK hoàn tất; tùy phiên bản và cơ khí có thể cần đến khoảng ba phút. Nếu timeout, không bấm lặp ngay: kiểm tra nguồn, COM và trạng thái cơ khí.</li>
+<li>Đọc <strong>GET_TEMP</strong>, <strong>GET_POS</strong>, <strong>GET_CURR</strong>; nhìn lại từng ngón. ACK chỉ xác nhận quy trình kết thúc, không chứng minh mọi mốc đã đúng.</li>
+<li>Bản GUI của dự án vẫn để streaming OFF sau Homing. Kiểm tra tư thế và các slider trước khi bấm Start.</li>
+</ol>
+<p><strong>Set Speed/Set Torque trong GUI không bảo đảm hạn chế lực/tốc độ của Homing.</strong> Quy trình Homing có các giá trị riêng trong firmware. Không coi việc đặt lực thấp ở GUI là một cơ chế giới hạn Homing.</p>
+<h3>Chỉnh nhỏ bằng Trim Servo</h3>
+<ul>
+<li>Dừng streaming trước khi Trim; ghi lại giá trị đã chỉnh để có thể kiểm tra lại.</li>
+<li>Chọn đúng ID. Bắt đầu bằng bước nhỏ, chẳng hạn <strong>1–5°</strong>, rồi thử chuyển động nhỏ và quan sát.</li>
+<li>Dấu <code>+</code>/<code>-</code> là thay đổi tọa độ servo; không có một dấu duy nhất luôn tương ứng với “mở hơn” cho mọi kênh.</li>
+<li>Trim thay đổi <strong>mốc mở</strong>. Nếu mức 1 vẫn chưa gập hết, không tiếp tục Trim đầu mở để cố chữa đầu đóng.</li>
+<li>Không dùng Trim để bù dây luồn sai, dây liên động chùng, nút trượt hoặc puly bị kẹt.</li>
+<li>Mốc Trim được firmware lưu; chạy lại Homing có thể thay các mốc thủ công bằng mốc mới.</li>
+</ul>
+<h3>Calibrate Mid và khả năng tương thích</h3>
+<p>GUI/source SDK hiện có nút <strong>Calibrate Mid</strong>, nhưng không thể suy ra file <code>.bin</code> v0.2.0 đang chạy hỗ trợ tính năng này chỉ từ việc thấy nút. Chỉ dùng khi đã xác nhận firmware tương thích và hiểu việc thay đổi tọa độ servo. Nếu không có ACK, không gửi lặp.</p>
+<p>Hiệu chỉnh điểm giữa, mốc mở và mốc đóng là các việc khác nhau. Sau mọi thay đổi tọa độ, cần kiểm tra lại trước khi cho lệnh hết biên.</p>
+<h2>6. Điều khiển vị trí bằng slider</h2>
+<p>Chỉ thực hiện khi cơ khí và mốc đã được xác nhận.</p>
+<ol>
+<li>Khi streaming OFF, kiểm tra giá trị <strong>cả bảy slider</strong>, không chỉ thanh định di chuyển. Chọn tư thế khởi đầu đã kiểm chứng không ép vào chặn.</li>
+<li>Đặt giới hạn tốc độ/lực thấp cho các kênh cần thử bằng <strong>Set Speed</strong> và <strong>Set Torque</strong>, chờ ACK. Các con số này là đơn vị lệnh, không phải phần trăm, độ/giây, N·m hay mA.</li>
+<li>Bấm <strong>Start Position Commands</strong>. Toàn bộ slider được gửi ngay ở tần số đã chọn; không có bảo đảm tự tăng tốc/đi dần từ tư thế hiện tại.</li>
+<li>Với kênh đã có mốc đúng, thử dịch nhỏ khoảng <strong>0,02–0,05</strong> mỗi lần. Quan sát rồi mới tăng tiếp.</li>
+<li>Dùng <strong>Pause Position Commands</strong> khi cần dừng gửi mục tiêu mới. Servo vẫn có thể giữ lực ở mục tiêu cuối; muốn ngắt động lực chắc chắn thì tắt 6 V.</li>
+</ol>
+<p>Theo quy ước hiệu chỉnh, <strong>0 là mốc mở, 1 là mốc đóng</strong>. Nếu mốc chưa đúng, 0/1 chỉ là hai đầu phần mềm, không phải hai giới hạn cơ khí đã được xác nhận.</p>
+<p>GUI quy đổi slider 0–1 sang góc khớp trước khi gửi:</p>
+<table>
+<thead>
+<tr>
+<th>Slider</th>
+<th>0 → 1 tương ứng</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0 thumb_abduction</td>
+<td>0° → 100°</td>
+</tr>
+<tr>
+<td>1 thumb_flex</td>
+<td>0° → 55°</td>
+</tr>
+<tr>
+<td>2 thumb_tendon, 3 index, 4 middle, 5 ring, 6 pinky</td>
+<td>0° → 90°</td>
+</tr>
+</tbody>
+</table>
+<p>Hai số <code>0.000</code> và <code>1.000</code> ở hai đầu mỗi hàng chỉ là nhãn min/max cố định. Số do <strong>GET_POS</strong> in ra là vị trí <strong>cơ cấu</strong> chuẩn hóa 0–1, không cùng thang với slider khớp. Ví dụ slider index 0,5 không cho GET_POS bằng 0,5.</p>
+<p>Giới hạn Set Speed/Set Torque có thể trở về giá trị mặc định khi ESP32 khởi động lại; đặt lại trước một phiên thử mới. Hộp Set Torque của GUI giới hạn nhập <strong>0–1000</strong>; nếu thấy giá trị gợi ý 1023, sửa về một giá trị hợp lệ thay vì coi đó là mức nên dùng.</p>
+<p>Ba chuyển động ngón cái có liên hệ cơ khí. Trong GUI hiện tại, các slider được chuyển qua mô hình khớp–cơ cấu rồi gửi một frame cho cả bảy servo; thay một thanh ngón cái có thể kéo theo thay đổi lệnh ở cơ cấu ngón cái khác. Không lấy điều đó làm bằng chứng duy nhất rằng ID bị đảo.</p>
+<h2>7. Theo dõi nhiệt độ, dòng và dữ liệu phản hồi</h2>
+<p>Ưu tiên đọc riêng <strong>GET_TEMP</strong>, <strong>GET_CURR</strong>, <strong>GET_POS</strong> khi kiểm tra.</p>
+<ul>
+<li>Thứ tự các phần tử luôn là <strong>ID 0, 1, 2, 3, 4, 5, 6</strong>. Ví dụ nhiệt độ ở phần tử thứ năm là ID 4.</li>
+<li><code>GET_POS</code> trên GUI là vị trí chuẩn hóa 0–1, không phải số encoder 0–4095. Không so trực tiếp nó với giá trị raw của công cụ chẩn đoán.</li>
+<li>SDK hiện nhân giá trị dòng có dấu với <strong>6,5</strong> và hiển thị theo mA. Công cụ raw từng dùng trong phiên lắp không thực hiện cùng phép đổi. Không so trực tiếp hai loại số, hoặc coi lệnh lực 250 là dòng 250 mA. Cần kiểm chứng hệ số theo đúng model servo trước khi dùng ngưỡng dòng tuyệt đối.</li>
+<li>Dùng độ lớn dòng để quan sát tải; dấu âm/dương thể hiện chiều theo giao thức. Tải tăng mà vị trí không tiến thêm cần được kiểm tra, không tự kết luận là chặn cơ khí hợp lệ.</li>
+<li>Trong firmware đã kiểm tra, bộ đọc theo nhóm chỉ cập nhật đủ dữ liệu khi nhận được cả bảy ID. Thiếu servo có thể khiến log giữ giá trị cũ/toàn số 0. Có phản hồi USB không bảo đảm mọi servo đang có nguồn.</li>
+<li><code>GET_ALL</code> ở source GUI hiện tại tính lại trường POS không đúng cách chuẩn hóa của <code>GET_POS</code>; dùng <strong>GET_POS riêng</strong> để đánh giá vị trí.</li>
+</ul>
+<p>Trong giai đoạn lắp/căn của bàn tay này, nếu nhiệt độ tăng nhanh khi đứng yên hoặc lên khoảng <strong>45–50°C</strong>, nên dừng, cắt 6 V và kiểm tra tải/dây trước khi tiếp tục. Đây là mốc theo dõi thận trọng cho việc căn chỉnh, <strong>không phải thông số ngắt nhiệt của hãng</strong>. Không chờ đến lúc servo tự bảo vệ mới dừng.</p>
+<h2>8. Những thao tác cần tránh nhầm</h2>
+<ul>
+<li><strong>Torque Control:</strong> slider lực gửi lệnh tới cả bảy servo. Không dùng để thử riêng một ngón khi chưa hiểu chế độ; đưa nó về 0 cũng không bảo đảm tắt lực trên mọi phiên bản firmware.</li>
+<li><strong>Start/Pause:</strong> không phải công tắc bật/tắt torque của servo.</li>
+<li><strong>Set to Open Position:</strong> có chuyển động, không phải một lệnh thả trôi.</li>
+<li><strong>ZERO_ALL:</strong> gửi mọi khớp về giới hạn dưới 0°. Ngày 03/11/2026, sau ZERO_ALL, thumb_abd (ID 0) đứng yên nhưng dòng khoảng 1900 đơn vị và nóng tới 60 °C vì bị ghì vào điểm chặn. Giữ ở khoảng 5° thì dòng còn khoảng 60. Không dùng ZERO_ALL làm tư thế nghỉ.</li>
+<li><strong>Nạp lại cùng firmware:</strong> không tự xóa hết dữ liệu hiệu chỉnh trong NVS hoặc offset EEPROM nằm trong từng servo.</li>
+<li><strong>Đổi ID:</strong> không hiệu chỉnh góc tay đòn hay chiều dài dây. Không chạy lại các lệnh <code>swap01</code>/<code>swap12</code> chỉ để “kiểm tra”; chúng sẽ đảo ngược ID đang đúng.</li>
+<li><strong>Các script chẩn đoán:</strong> <code>servo_diag.py</code> và <code>servo_release_status.py</code> cần firmware riêng, không dùng trực tiếp với firmware chuẩn v0.2.0. Không nạp firmware reset/chẩn đoán cho một phiên vận hành bình thường.</li>
+</ul>
+<h2>9. Kết thúc phiên sử dụng</h2>
+<ol>
+<li>Nếu hành trình đã kiểm chứng và không có lỗi cơ khí, đưa bàn tay về tư thế nghỉ thuận tiện bằng chuyển động chậm.</li>
+<li>Bấm <strong>Pause Position Commands</strong>.</li>
+<li><strong>Tắt nguồn 6 V</strong> để ngắt động lực; đỡ cơ cấu nếu nó có thể tự hồi/rơi khi mất lực.</li>
+<li>Bấm <strong>Disconnect</strong>, đóng GUI. Sau đó mới tháo USB hoặc chỉnh dây/cơ khí.</li>
+</ol>
+<p>Nếu đang kẹt, dây tuột hoặc chuyển động bất thường, <strong>ngắt 6 V trước</strong>, không cố ra lệnh mở toàn bộ để xử lý.</p>
+<h2>10. Xử lý lỗi thường gặp</h2>
+<table>
+<thead>
+<tr>
+<th>Hiện tượng</th>
+<th>Cách xử lý</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Không thấy COM11</td>
+<td>Kiểm tra USB có truyền dữ liệu, bấm Refresh; xem Device Manager và chọn COM mới nếu đã đổi</td>
+</tr>
+<tr>
+<td><code>Access is denied</code> / port busy</td>
+<td>Đóng Serial Monitor, script hoặc GUI khác đang giữ cổng; chỉ mở một chương trình</td>
+</tr>
+<tr>
+<td><code>WriteFile failed</code> / USB mất kết nối</td>
+<td>Pause/đóng kết nối; nếu cơ khí đang chịu tải, cắt 6 V. Kiểm tra cáp USB và nguồn; không gửi lặp liên tục</td>
+</tr>
+<tr>
+<td>Connect được nhưng servo không phản hồi</td>
+<td>Kiểm tra nguồn 6 V, giắc và đúng firmware; USB phản hồi không đồng nghĩa servo có nguồn</td>
+</tr>
+<tr>
+<td>GET_POS toàn 0 hoặc số không đổi</td>
+<td>Kiểm tra đủ bảy ID/nguồn, không coi ngay đó là mốc home thật</td>
+</tr>
+<tr>
+<td><code>[err] GET_POS: object of type 'NoneType' has no len()</code></td>
+<td>SDK không nhận đủ 16 byte trong 10 ms nên trả <code>None</code>; xem dòng <code>Timeout...</code>/<code>Invalid response...</code> ở cửa sổ console của ChayGUI. Thường do robot đang Homing sau khi cấp nguồn (firmware bỏ qua mọi lệnh), chưa có 6 V, hoặc phản hồi trễ; đợi rồi bấm lại</td>
+</tr>
+<tr>
+<td>Kéo slider nhưng tay không chuyển động</td>
+<td>Streaming đang OFF; bấm <strong>Start Position Commands</strong>. Sau Homing/Set ID/Calibrate Mid/Torque Control/kết nối lại, streaming tự tắt</td>
+</tr>
+<tr>
+<td>Nhiệt độ đọc toàn 0 °C</td>
+<td>6 V đã ngắt; ESP32 vẫn trả lời qua USB nhưng servo không có dữ liệu</td>
+</tr>
+<tr>
+<td>Ngón giữa (ID 4) nóng nhất, dòng cao hơn hẳn ngón khác ở cùng góc</td>
+<td>Đo ngày 03/11/2026: ở 20° dòng khoảng 470 so với 50–80 ở các ngón khác, nhiệt 57–68 °C. Tắt 6 V, kiểm tra dây gân, ma sát và kẹt của ngón giữa</td>
+</tr>
+<tr>
+<td>Slider bằng 1 nhưng ngón chưa gập hết</td>
+<td>Kiểm tra mốc, chiều quấn, chiều dài dây, dây liên động và tải; không mặc định đổi ID hoặc tăng lực tối đa</td>
+</tr>
+<tr>
+<td>Ngón cái không duỗi</td>
+<td>Xác nhận ID 1/2 đúng, dây không quá căng/kẹt và lò xo hồi làm việc; Homing lại chỉ sau khi cơ khí đã ổn</td>
+</tr>
+<tr>
+<td>Servo nóng khi đứng yên</td>
+<td>Cắt 6 V, để nguội, kiểm tra mục tiêu đang ép vào chặn hoặc dây quá căng</td>
+</tr>
+<tr>
+<td>Homing có ACK nhưng tư thế sai</td>
+<td>Dừng, kiểm tra từng cơ cấu; ACK không phải chứng nhận hiệu chỉnh thành công</td>
+</tr>
+<tr>
+<td>Đổi được ID nhưng servo chưa quay</td>
+<td>Việc đổi ID có thể tắt torque; không suy ra servo hỏng. Không dùng Homing cưỡng bức chỉ để bật lại lực</td>
+</tr>
+</tbody>
+</table>
+<h2>11. Dùng Python SDK</h2>
+<p>Đóng GUI trước khi chạy Python để nhường cổng COM. Khởi tạo SDK mở cổng serial; việc đóng SDK chỉ đóng cổng, không phải lệnh tắt lực.</p>
+<h3>Ví dụ chỉ đọc nhiệt độ</h3>
+<pre><code class="language-python">from aero_open_sdk.aero_hand import AeroHand
+
+hand = AeroHand(port=&quot;COM11&quot;, baudrate=921600)
+try:
+    print(&quot;Nhiệt độ ID 0–6:&quot;, hand.get_actuator_temperatures())
+finally:
+    hand.close()
+</code></pre>
+<p>Ví dụ không gọi Homing hoặc lệnh vị trí. Tuy nhiên việc mở cổng/nguồn có thể gây reset tùy đường điều khiển USB; vẫn chuẩn bị cơ khí cho khả năng firmware tự Homing khi ESP32 khởi động.</p>
+<h3>Các hàm điều khiển cần biết</h3>
+<table>
+<thead>
+<tr>
+<th>Hàm</th>
+<th>Ý nghĩa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hand.send_homing(timeout_s=175.0)</code></td>
+<td>Có chuyển động tìm mốc; chờ ACK</td>
+</tr>
+<tr>
+<td><code>hand.set_speed(id, value)</code></td>
+<td>Giới hạn tốc độ kênh trong điều khiển vị trí</td>
+</tr>
+<tr>
+<td><code>hand.set_torque(id, value)</code></td>
+<td>Giới hạn lực kênh trong điều khiển vị trí</td>
+</tr>
+<tr>
+<td><code>hand.get_joint_positions_compact()</code></td>
+<td>Đọc tư thế khớp dạng bảy giá trị theo mô hình SDK</td>
+</tr>
+<tr>
+<td><code>hand.set_joint_positions(pose)</code></td>
+<td>Gửi một tư thế khớp bằng <strong>độ</strong>, nhận vector 7 hoặc 16 phần tử; không phải vector 0–1 của GUI</td>
+</tr>
+<tr>
+<td><code>hand.set_actuations(values)</code></td>
+<td>Điều khiển cơ cấu trực tiếp bằng độ; dễ bỏ qua liên hệ cơ khí ngón cái, chỉ dùng khi hiểu mô hình</td>
+</tr>
+<tr>
+<td><code>hand.close()</code></td>
+<td>Đóng serial, không tự thả trôi</td>
+</tr>
+</tbody>
+</table>
+<p>Ưu tiên API khớp <code>set_joint_positions</code> khi điều khiển bàn tay hoàn chỉnh. Mỗi lệnh tư thế vẫn gửi mục tiêu cho cả bảy servo. Chỉ chạy các ví dụ <code>run_sequence.py</code>/<code>power_grasp.py</code> sau khi đã kiểm tra toàn bộ hành trình và hiệu chỉnh.</p>
+<p>Bảy khớp rút gọn của <code>set_joint_positions</code> (đơn vị độ): <code>[thumb_abd 0–100, thumb_flex 0–55, thumb_tip 0–90, index, middle, ring, pinky 0–90]</code>. Giá trị ngoài giới hạn bị SDK cắt về giới hạn. Chuyển động mượt dùng <code>hand.run_trajectory([(tư_thế, 0), (tư_thế_mới, số_giây), ...])</code>, gửi ở 100 Hz.</p>
+<h3>Ví dụ có sẵn</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Nội dung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>examples/tim_cong.py</code></td>
+<td>Tự tìm cổng Aero Hand (USB VID <code>303A</code>, xác nhận bằng GET_POS), in góc khớp và nhiệt độ. Chỉ đọc</td>
+</tr>
+<tr>
+<td><code>examples/dieu_khien_co_ban.py --port COM7</code></td>
+<td>Đọc góc, nhiệt độ, dòng. Thêm <code>--move</code> để gập nhẹ 4 ngón 30° rồi mở lại; dừng nếu servo ≥ 45 °C và hỏi xác nhận trước</td>
+</tr>
+<tr>
+<td><code>examples/dieu_khien_camera.py</code></td>
+<td>Điều khiển bằng webcam; xem <strong>HUONG_DAN_CAMERA.md</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Mở cổng COM làm ESP32 khởi động lại (in <code>[BOOT]...</code>). Lần đọc đầu có thể báo <code>Invalid response ... got 91</code>; thử lại là được. Đây là reset không mất nguồn nên firmware không tự Homing.</p>
+<h2>12. Nạp lại firmware khi cần</h2>
+<ol>
+<li>Tắt 6 V, giữ USB, đóng các chương trình khác đang dùng COM.</li>
+<li>GUI → chọn COM → <strong>Upload Firmware</strong>.</li>
+<li>Chọn đúng file ứng dụng tay trái: <code>C:\AeroHand_Student\aero-hand-open\firmware\main\bin\firmware_v0.2.0_lefthand.bin</code>.</li>
+<li>Công cụ GUI ghi ở <strong>0x10000</strong>. Không thay bằng file merged/bootloader/partition.</li>
+<li>Chờ báo nạp thành công. Giữ 6 V tắt đến khi đã chuẩn bị cơ khí và tư thế làm việc.</li>
+<li>Khi kết nối lại, kiểm tra GUI vẫn ở trạng thái streaming OFF. Không mặc định rằng nạp firmware đã hiệu chỉnh lại bàn tay.</li>
+</ol>
+<h2>13. Nguồn đối chiếu</h2>
+<ul>
+<li><a href="https://docs.tetheria.ai/docs/hardware_setup/">Hướng dẫn phần cứng chính thức</a>.</li>
+<li><a href="https://docs.tetheria.ai/docs/software_setup/">Cài đặt và vận hành SDK/GUI</a>.</li>
+<li><a href="https://docs.tetheria.ai/docs/gui/">Các chức năng GUI và quy trình đặt ID</a>.</li>
+<li>Source GUI tại <code>aero-hand-open/sdk/src/aero_open_sdk/gui.py</code>, SDK tại <code>aero_hand.py</code>, firmware tại <code>aero-hand-open/firmware/main/</code>.</li>
+<li>Bản GUI trong dự án đã có nút Start/Pause Position Commands; giao diện tải mới từ pip có thể khác. Mã source và <code>.bin</code> được phát hành không nhất thiết cùng mức tính năng.</li>
+</ul>
+<p><strong>Trình tự nhớ nhanh:</strong> kiểm tra cơ khí → chuẩn bị cho khả năng Homing lúc khởi động → Connect với streaming OFF → xác nhận mốc và dữ liệu → thử nhỏ → mới vận hành toàn hành trình → Pause → tắt 6 V → Disconnect.</p>
+</main></html>

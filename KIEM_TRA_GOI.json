@@ -1,0 +1,16 @@
+{
+  "date": "2026-11-03",
+  "offline_install_passed": true,
+  "tested_python": "3.10.5",
+  "platform": "Windows x64",
+  "test_location": "fresh directory containing spaces",
+  "checks": {
+    "install_checks": true,
+    "dependency_consistency": true,
+    "gui_no_auto_stream_behavior": true,
+    "firmware_image_validity": true,
+    "read_only_example_help": true
+  },
+  "hardware_connected_or_controlled_during_tests": false,
+  "other_python_versions_hardware_and_online_fallback_tested": false
+}

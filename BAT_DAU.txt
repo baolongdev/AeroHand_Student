@@ -1,0 +1,3 @@
+GIAI NEN TOAN BO ZIP. Mo BAT_DAU.html de doc huong dan.
+Can Python3.10+64-bit co Tcl/Tk. Chay CaiDat.bat mot lan, sau do ChayGUI.bat.
+Khong can cam ban tay khi cai dat. Doc huong dan truoc khi cap nguon va cho chuyen dong.

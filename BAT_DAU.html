@@ -1,0 +1,113 @@
+<!doctype html><html lang="vi"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bắt đầu - Aero Hand sinh viên</title><style>body{font:17px/1.65 system-ui,Segoe UI,sans-serif;color:#18232d;background:#f6f8fa;margin:0}
+main{max-width:980px;margin:28px auto;background:white;padding:34px 44px;border:1px solid #dbe1e7;border-radius:12px}
+h1,h2,h3{line-height:1.25;color:#143d58}h2{margin-top:2em;border-bottom:1px solid #ddd;padding-bottom:.35em}
+nav{display:flex;gap:20px;flex-wrap:wrap;border-bottom:1px solid #ddd;padding-bottom:18px}
+a{color:#0969a2}table{border-collapse:collapse;width:100%;margin:20px 0}td,th{border:1px solid #dbe1e7;padding:9px 12px;text-align:left}
+th{background:#eef5fa}pre{overflow:auto;background:#f1f4f7;padding:18px;border-radius:8px}code{font-family:Consolas,monospace}
+blockquote{border-left:4px solid #2082a1;margin:20px 0;padding:4px 18px;background:#f0f8fb}
+@media(max-width:700px){main{padding:20px;margin:0;border:0;border-radius:0}body{font-size:16px}}
+@media print{body{background:white}main{border:0;margin:0;padding:0}nav{display:none}h2,h3{break-after:avoid}tr,pre{break-inside:avoid}}
+</style><main><nav><a href="BAT_DAU.html">Bắt đầu</a><a href="HUONG_DAN_SU_DUNG_AERO_HAND.html">Hướng dẫn vận hành</a><a href="HUONG_DAN_CAMERA.html">Điều khiển camera</a><a href="aero-hand-open/hardware/Gen1_OPEN_Assembly_Guide.pdf">Lắp ráp PDF</a></nav><h1>Bộ Aero Hand tay trái cho sinh viên</h1>
+<p>Bản phát hành: <strong>03/11/2026</strong>, Windows 64-bit.</p>
+<h2>Bắt đầu trong 5 bước</h2>
+<ol>
+<li><strong>Giải nén toàn bộ ZIP</strong>, không mở/chạy file trực tiếp bên trong ZIP. Có thể giải nén thành <code>C:\AeroHand_Student</code> hoặc thư mục khác.</li>
+<li>Cần có <strong>Python &gt;=3.10, 64-bit, có Tcl/Tk</strong>. Python không được kèm trong ZIP. Xem <a href="https://docs.python.org/3/using/windows.html">Python trên Windows</a>. Không dùng bản embeddable thiếu Tk/pip cho GUI này.</li>
+<li>Chạy <strong>CaiDat.bat</strong> một lần. Chương trình tạo <code>.venv</code> riêng, cài thư viện rồi cài SDK từ source trong gói. Không cần cắm bàn tay để cài đặt.</li>
+<li>Chạy <strong>KiemTraCaiDat.bat</strong> nếu muốn kiểm tra; công cụ này không mở COM hay gửi lệnh servo.</li>
+<li>Đọc <strong>HUONG_DAN_SU_DUNG_AERO_HAND.md</strong>, rồi mở <strong>ChayGUI.bat</strong>. Chọn đúng COM (máy lớp đã dùng COM11; ESP32-S3 hiện tên <em>USB Serial Device</em>, USB VID <code>303A</code>), Baud921600, Rate50Hz. GUI bắt đầu với <strong>position streaming OFF</strong>; kéo slider chỉ có tác dụng sau khi bấm <strong>Start Position Commands</strong>.</li>
+</ol>
+<p>Gói wheel offline được tạo và kiểm tra bằng <strong>CPython3.10 Windows x64</strong>. Nếu Python khác không dùng được wheel offline, CaiDat sẽ tải thư viện phù hợp từ PyPI; cần Internet. Có thể bắt buộc cài offline bằng <code>powershell -NoProfile -ExecutionPolicy Bypass -File .\CaiDat.ps1 -OfflineOnly</code>.</p>
+<p>Nếu chuyển thư mục sau khi đã cài, nên giải nén lại vào thư mục đích rồi chạy CaiDat tại đó. Không sao chép <code>.venv</code> từ máy khác.</p>
+<h2>Sơ đồ ID của bàn tay lớp</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Cơ cấu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>Tay đòn cứng, dạng/khép ngang ngón cái</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Dây gập khớp gốc/phần dưới ngón cái</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Dây cuộn phần đầu ngón cái</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Ngón trỏ</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Ngón giữa</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Ngón áp út</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Ngón út</td>
+</tr>
+</tbody>
+</table>
+<p>ID1/2 đã được đảo đúng và xác nhận ngày02/11. Hiệu chỉnh hành trình ngón cái sau thay đổi này chưa được tài liệu xác nhận hoàn tất; giảng viên cần kiểm tra trước khi cho chạy hết biên.</p>
+<h2>Trước khi cho bàn tay chuyển động</h2>
+<ul>
+<li>Firmware chuẩn v0.2.0 có thể <strong>tự Homing khi ESP32 khởi động/sụt áp</strong>, dù GUI chưa Connect. Chuẩn bị dây/cơ khí và khoảng trống trước khi cấp điện.</li>
+<li>Nút <strong>Start Position Commands</strong> sẽ gửi tất cả mục tiêu slider đang đặt. Kiểm tra đủ bảy slider trước khi bật.</li>
+<li><strong>Pause/Disconnect không tắt lực</strong>. Ngắt nguồn6V để ngắt động lực; tắt6V trước khi tháo giắc/chỉnh dây.</li>
+<li>Homing/Set to Open Position có thể chuyển động cả khi streaming đang Pause. Chỉ thao tác khi đã được hướng dẫn.</li>
+<li><strong>ZERO_ALL</strong> đưa mọi khớp về 0°. Trên tay lớp, thumb_abd (ID0) ở 0° bị ghì vào điểm chặn, servo nóng dần khi đứng yên. Không dùng ZERO_ALL làm tư thế nghỉ; kiểm tra nhiệt độ sau khi dùng.</li>
+<li>Không dùng Set ID hoặc đổi ID để thử vận hành; bảy ID của tay lớp đã được đặt.</li>
+</ul>
+<h2>Trong gói có gì?</h2>
+<ul>
+<li>Hướng dẫn vận hành và checklist tiếng Việt.</li>
+<li><code>aero-hand-open/sdk</code>: GUI đã chỉnh và Python SDK, cài từ source local.</li>
+<li><code>aero-hand-open/firmware/main/bin/firmware_v0.2.0_lefthand.bin</code>: ứng dụng tay trái; GUI nạp tại0x10000. Chỉ nạp khi có yêu cầu, không cần nạp lại mỗi buổi học.</li>
+<li><code>aero-hand-open/firmware/main</code>: source tham khảo, HandConfig chọn LEFT_HAND. Source có thể chứa tính năng mới hơn file.bin; không mặc định biên dịch ra đúng binary phát hành.</li>
+<li><code>aero-hand-open/hardware/Gen1_OPEN_Assembly_Guide.pdf</code>: tài liệu lắp ráp gốc.</li>
+<li><code>examples/doc_trang_thai.py</code>: ví dụ chỉ đọc; <code>tools/kiem_tra_cai_dat.py</code>: kiểm tra cài đặt.</li>
+<li><code>examples/tim_cong.py</code>: tự tìm cổng Aero Hand, in góc khớp và nhiệt độ (chỉ đọc).</li>
+<li><code>examples/dieu_khien_co_ban.py</code>: ví dụ SDK đọc trạng thái; với <code>--move</code> gập nhẹ 4 ngón rồi mở lại.</li>
+<li><code>examples/dieu_khien_camera.py</code>, <code>ChayCamera.bat</code>, <code>requirements-camera.txt</code>: điều khiển bằng camera, xem <strong>HUONG_DAN_CAMERA.md</strong>.</li>
+<li><code>wheels</code> và requirements: thư viện cài đặt. <code>SHA256SUMS.txt</code>: kiểm tra tính toàn vẹn các file trong gói.</li>
+</ul>
+<p>Không đưa môi trường máy giảng viên, log thử nghiệm, mốc hiệu chỉnh cá nhân hoặc công cụ chẩn đoán/đảo ID/tìm chặn vào bộ dùng thường ngày này.</p>
+<h2>Ví dụ đọc dữ liệu</h2>
+<p>Đóng GUI để nhường COM, mở PowerShell tại thư mục giải nén:</p>
+<pre><code class="language-powershell">.\.venv\Scripts\python.exe examples\doc_trang_thai.py --port COM11
+</code></pre>
+<p>Script không gửi Homing/vị trí/lực. Với firmware chuẩn, đủ7 servo có nguồn mới có bộ dữ liệu nhóm đáng tin; dữ liệu0/cũ không chứng minh servo thật đang ở vị trí0.</p>
+<p>Không cần biết số COM:</p>
+<pre><code class="language-powershell">.\.venv\Scripts\python.exe examples\tim_cong.py
+</code></pre>
+<p>Script tìm cổng có chip Espressif, xác nhận bằng lệnh đọc GET_POS rồi in góc khớp và nhiệt độ ID0–6. Nhiệt độ toàn0°C nghĩa là đã ngắt6V.</p>
+<h2>Điều khiển bằng camera</h2>
+<p>Webcam đọc ngón tay trái của người dùng và điều khiển bàn tay theo. Cài thêm thư viện (cần Internet) rồi chạy:</p>
+<pre><code class="language-powershell">.\.venv\Scripts\python.exe -m pip install -r requirements-camera.txt
+.\ChayCamera.bat
+</code></pre>
+<p>Chương trình tự tìm COM và chưa gửi lệnh cho tới khi bấm SPACE và đặt tay khớp với robot. Đọc <strong>HUONG_DAN_CAMERA.md</strong> trước khi dùng.</p>
+<h2>Ghi chú cài đặt</h2>
+<ul>
+<li>Chỉ dùng một GUI/script/Serial Monitor giữ cổng COM cùng lúc.</li>
+<li><code>CaiDat.ps1</code> chỉ dùng thư mục gói và <code>.venv</code>, không yêu cầu admin, không đổi ExecutionPolicy toàn máy.</li>
+<li>Nếu cài offline báo thiếu wheel phù hợp, dùng Internet hoặc nhờ giảng viên chuẩn bị wheel theo đúng phiên bản Python/kiến trúc máy.</li>
+<li>Bộ này đã kiểm tra bằng Python3.10 x64; Python khác cần kiểm tra lại cài đặt, không được khẳng định đã thử phần cứng.</li>
+<li>Nếu <code>.venv</code> lỡ tạo bằng Python khác (ví dụ 3.12), CaiDat sẽ tải thư viện từ PyPI và phiên bản có thể lệch lock. Cài Python3.10 x64, xóa <code>.venv</code>, rồi chạy <code>powershell -NoProfile -ExecutionPolicy Bypass -File .\CaiDat.ps1 -PythonExe &quot;&lt;đường dẫn python3.10&gt;&quot; -OfflineOnly</code>.</li>
+<li><code>requirements-camera.txt</code> cài thêm mediapipe/OpenCV/numpy vào <code>.venv</code>, ngoài lock offline. Chạy lại CaiDat không gỡ các gói này.</li>
+</ul>
+<h2>Nguồn và giấy phép</h2>
+<p>Aero Hand Open: Chestnut Robotics/TetherIA. <a href="https://github.com/chestnut-robotics/aero-hand-open">Repository</a>, <a href="https://docs.tetheria.ai/docs/intro/">tài liệu</a>.
+Mã SDK/firmware giữ LICENSE/NOTICE Apache2.0; tài liệu phần cứng đi kèm LICENSE CC BY-NC-SA4.0 trong thư mục hardware. Thư viện bên thứ ba giữ metadata/giấy phép trong wheel.
+Xem <strong>THAY_DOI_TRONG_GOI.md</strong> để biết các chỉnh sửa local.</p>
+</main></html>

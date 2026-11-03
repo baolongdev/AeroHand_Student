@@ -1,0 +1,40 @@
+{
+  "version": "2026-11-03",
+  "platform": "Windows 64-bit",
+  "tested_python": "3.10.5",
+  "python_runtime_included": false,
+  "offline_wheel_target": "CPython3.10-win_amd64",
+  "normal_firmware": "firmware_v0.2.0_lefthand.bin",
+  "dependencies": {
+    "cffi": "2.1.1",
+    "click": "8.5.0",
+    "colorama": "0.4.6",
+    "cryptography": "50.0.2",
+    "esptool": "5.6.0",
+    "esp-pylib": "1.2.1",
+    "intelhex": "2.3.0",
+    "markdown-it-py": "4.2.0",
+    "mdurl": "0.1.2",
+    "pycparser": "3.11",
+    "Pygments": "2.21.0",
+    "pyserial": "3.5",
+    "PyYAML": "6.0.3",
+    "reedsolo": "1.7.0",
+    "rich": "15.0.0",
+    "rich-click": "1.9.9",
+    "typing_extensions": "4.16.0",
+    "uv-build": "0.8.24",
+    "websockets": "16.1.1"
+  },
+  "servo_ids": {
+    "0": "thumb_abduction_rigid_linkage",
+    "1": "thumb_lower_flex_cable",
+    "2": "thumb_tip_curl_cable",
+    "3": "index",
+    "4": "middle",
+    "5": "ring",
+    "6": "pinky"
+  },
+  "calibration_data_included": false,
+  "gui_starts_paused": true
+}
